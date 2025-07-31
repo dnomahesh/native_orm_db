@@ -50,7 +50,7 @@ afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
-                from components.findByName("release") ?: components.findByName("default")
+                from components.release
 
                 groupId = 'io.github.dnomahesh'
                 artifactId = 'native_orm_db'
@@ -66,6 +66,7 @@ afterEvaluate {
                             url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                         }
                     }
+
                     developers {
                         developer {
                             id = 'dnomahesh'
@@ -84,18 +85,22 @@ afterEvaluate {
 
         repositories {
             maven {
-                name = "sonatype"
-                url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-
+                name = "OSSRH"
+                url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
                 credentials {
-                    username = project.findProperty("n7nry1") ?: ""
-                    password = project.findProperty("IX4mUkCAwy0fQTjCVNb4dTSuBWDGtOXBR") ?: ""
+                    username = System.getenv("OSSRH_USERNAME")
+                    password = System.getenv("OSSRH_PASSWORD")
                 }
             }
         }
     }
+
     signing {
-        useGpgCmd()
-        sign publishing.publications["release"]
+        useInMemoryPgpKeys(
+                System.getenv("SIGNING_KEY_ID"),
+                System.getenv("SIGNING_KEY"),
+                System.getenv("SIGNING_PASSWORD")
+        )
+        sign publishing.publications.release
     }
 }
