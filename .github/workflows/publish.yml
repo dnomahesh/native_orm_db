@@ -2,34 +2,34 @@ name: Publish to Maven Central
 
 on:
   release:
-    types: [published]
-  workflow_dispatch:  # Allows manual trigger
+    types: [published]  # Runs only on GitHub Releases being published
+  workflow_dispatch:     # Allows manual trigger via GitHub UI
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
-      with:
-        java-version: '11'
-        distribution: 'temurin'
-        
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-      
-    - name: Build release AAR
-      run: ./gradlew assembleRelease
-      
-    - name: Publish to Maven Central
-      run: ./gradlew publishReleasePublicationToSonatypeRepository --no-daemon --no-parallel
-      env:
-        OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-        OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-        SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
-        SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-        SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+          cache: 'gradle'
+          gpg-private-key: ${{ secrets.SIGNING_KEY }}
+          gpg-passphrase: ${{ secrets.SIGNING_PASSWORD }}
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x ./gradlew
+
+      - name: Publish to Maven Central
+        run: ./gradlew clean publishReleasePublicationToSonatypeRepository --no-daemon --no-parallel --stacktrace
+        env:
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}

@@ -16,6 +16,19 @@ public abstract class BaseModel {
         return db.insert(getTableName(), null, values);
     }
 
+    public boolean update(String whereClause, String[] whereArgs) {
+        SQLiteDatabase db = OrmHelper.getInstance(NativeOrmDb.getContext()).getWritableDatabase();
+        ContentValues values = toContentValues();
+        int rows = db.update(getTableName(), values, whereClause, whereArgs);
+        return rows > 0;
+    }
+
+    public boolean delete(String whereClause, String[] whereArgs) {
+        SQLiteDatabase db = OrmHelper.getInstance(NativeOrmDb.getContext()).getWritableDatabase();
+        int rows = db.delete(getTableName(), whereClause, whereArgs);
+        return rows > 0;
+    }
+
     public static <T extends BaseModel> List<T> findAll(Class<T> modelClass) {
         List<T> list = new ArrayList<>();
         SQLiteDatabase db = OrmHelper.getInstance(NativeOrmDb.getContext()).getReadableDatabase();
@@ -34,7 +47,24 @@ public abstract class BaseModel {
         return list;
     }
 
-    private void loadFromCursor(Cursor cursor) throws IllegalAccessException {
+    public static <T extends BaseModel> T findById(Class<T> modelClass, long id) {
+        SQLiteDatabase db = OrmHelper.getInstance(NativeOrmDb.getContext()).getReadableDatabase();
+        Cursor cursor = db.query(getTableName(modelClass), null, "id=?", new String[]{String.valueOf(id)}, null, null, null);
+        T model = null;
+        try {
+            if (cursor.moveToFirst()) {
+                model = modelClass.newInstance();
+                model.loadFromCursor(cursor);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            cursor.close();
+        }
+        return model;
+    }
+
+    public void loadFromCursor(Cursor cursor) throws IllegalAccessException {
         for (Field field : getClass().getDeclaredFields()) {
             field.setAccessible(true);
             int columnIndex = cursor.getColumnIndex(field.getName());
@@ -78,4 +108,3 @@ public abstract class BaseModel {
         return getClass().getSimpleName().toLowerCase();
     }
 }
-
