@@ -15,98 +15,126 @@ A lightweight, Kotlin-based ORM (Object Relational Mapping) library for Android,
 
 ---
 
-
-
-
 ## 📦 Installation
 
 ### Step 1: Add dependency
 
-Add the following to your app-level `build.gradle` file:
----
-groovy
----
+Add the following to your **app-level** `build.gradle` file:
+
+```groovy
 dependencies {
     implementation 'io.github.dnomahesh:native_orm_db:1.0.0'
 }
----
+```
 
-Make sure you have mavenCentral() in your project-level repositories block:
----
+Make sure you have `mavenCentral()` in your **project-level** `repositories` block:
 
-groovy
----
+```groovy
 allprojects {
     repositories {
         google()
         mavenCentral()
     }
 }
+```
+
 ---
 
-⚙️ Setup
-Initialize the library in your Application class:
+## ⚙️ Setup
 
-kotlin
----
+### Initialize the library in your Application class:
+
+```kotlin
 class MyApp : Application() {
     override fun onCreate() {
         super.onCreate()
         OrmDatabase.init(this)
     }
 }
----
-Define your data model:
+```
 
-kotlin
----
+### Define your data model:
+
+```kotlin
 data class User(
     var id: Long = 0,
     var name: String,
     var email: String
 ) : OrmModel()
+```
+
 ---
-🛠️ Usage
-Create (Insert)
-kotlin
----
+
+## 🛠️ Usage
+
+### Create (Insert)
+
+```kotlin
 val user = User(name = "Alice", email = "alice@example.com")
 user.save()
-Read (Query All)
----
-kotlin
----
+```
+
+### Read (Query All)
+
+```kotlin
 val allUsers = OrmDatabase.findAll(User::class)
----
-Read (Query by ID)
-kotlin
----
----
+```
+
+### Read (Query by ID)
+
+```kotlin
 val user = OrmDatabase.findById(User::class, 1L)
----
-Update
-kotlin
----
----
+```
+
+### Update
+
+```kotlin
 user.name = "Updated Name"
 user.update()
----
----
-Delete
-kotlin
----
----
+```
 
+### Delete
+
+```kotlin
 user.delete()
----
-🧪 Testing
----
-You can write unit tests by mocking the Context and using the same public API as in runtime.
+```
+
 ---
 
-🙌 Contribution
+## 🧪 Testing
+
+You can write unit tests by mocking the `Context` and using the same public API as in runtime.
+
 ---
+
+## 🙌 Contribution
+
 Want to contribute? Great! Please fork the repository and create a pull request with your improvements or bug fixes.
+
+We follow [Conventional Commits](https://www.conventionalcommits.org/) and appreciate clean, readable code.
+
 ---
-We follow Conventional Commits and appreciate clean, readable code.
+
+## 📄 License
+
+This project is licensed under the Apache License 2.0. See the [LICENSE](./LICENSE) file for details.
+
+```
+Apache License  
+Version 2.0, January 2004  
+http://www.apache.org/licenses/
+```
+
 ---
+
+## 👤 Author
+
+**Mahesh Tripathi**  
+📧 [maheshtripathijobs247@gmail.com](mailto:maheshtripathijobs247@gmail.com)  
+🔗 [GitHub Profile](https://github.com/dnomahesh)
+
+---
+
+## 🌟 Star the Repo
+
+If you find this library useful, please ⭐ the repo and share it with others!
