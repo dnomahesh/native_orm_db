@@ -28,6 +28,13 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
@@ -46,20 +53,26 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
 }
 
+// Define your library version
+ext.PUBLISH_GROUP_ID = 'io.github.dnomahesh'
+ext.PUBLISH_ARTIFACT_ID = 'native-orm-db'
+ext.PUBLISH_VERSION = '1.0.0'
+
 afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
                 from components.release
 
-                groupId = 'io.github.dnomahesh'
-                artifactId = 'native_orm_db'
-                version = '1.0.0'
+                groupId PUBLISH_GROUP_ID
+                artifactId PUBLISH_ARTIFACT_ID
+                version PUBLISH_VERSION
 
                 pom {
-                    name = 'native_orm_db'
-                    description = 'A lightweight ORM alternative to LitePal.'
+                    name = 'Native ORM DB'
+                    description = 'A lightweight ORM alternative to LitePal for Android development'
                     url = 'https://github.com/dnomahesh/native_orm_db'
+
                     licenses {
                         license {
                             name = 'The Apache License, Version 2.0'
@@ -74,27 +87,23 @@ afterEvaluate {
                             email = 'maheshtripathijobs247@gmail.com'
                         }
                     }
+
                     scm {
-                        connection = 'scm:git:github.com/dnomahesh/native_orm_db.git'
-                        developerConnection = 'scm:git:ssh://github.com/dnomahesh/native_orm_db.git'
-                        url = 'https://github.com/dnomahesh/native_orm_db'
+                        connection = 'scm:git:git://github.com/dnomahesh/native_orm_db.git'
+                        developerConnection = 'scm:git:ssh://github.com:dnomahesh/native_orm_db.git'
+                        url = 'https://github.com/dnomahesh/native_orm_db/tree/main'
                     }
                 }
             }
         }
 
-//        singleVariant("release") {
-//            withSourcesJar()
-//            withJavadocJar()
-//        }
-
         repositories {
             maven {
-                name = "OSSRH"
+                name = "sonatype"
                 url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
                 credentials {
-                    username = System.getenv("OSSRH_USERNAME")
-                    password = System.getenv("OSSRH_PASSWORD")
+                    username = findProperty("ossrhUsername") ?: System.getenv("OSSRH_USERNAME")
+                    password = findProperty("ossrhPassword") ?: System.getenv("OSSRH_PASSWORD")
                 }
             }
         }
@@ -102,10 +111,10 @@ afterEvaluate {
 
     signing {
         useInMemoryPgpKeys(
-                System.getenv("SIGNING_KEY_ID"),
-                System.getenv("SIGNING_KEY"),
-                System.getenv("SIGNING_PASSWORD")
+                findProperty("signingKeyId") ?: System.getenv("SIGNING_KEY_ID"),
+                findProperty("signingKey") ?: System.getenv("SIGNING_KEY"),
+                findProperty("signingPassword") ?: System.getenv("SIGNING_PASSWORD")
         )
-        sign publishing.publications.release
+        sign publishing.publications["release"]
     }
 }
